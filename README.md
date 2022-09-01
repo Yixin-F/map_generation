@@ -8,5 +8,7 @@ param4：缩放
 
 ./map pcd地图 pcd单体 param1 param2 param3 param4  + .....  （1执行，0不执行）
 
+#*****************     sh run.sh    *****************
+
 unit中存放了pcd单体和pcd地图
 
