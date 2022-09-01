@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 
 int iterm;
+std::string map_surround_name;
 std::vector<std::pair<std::string, std::vector<int>>> params;
 const std::string unit_path = "../unit/pcd_nocolor/";   // remember to change
 const std::string save_path = "../";
@@ -54,10 +55,13 @@ public:
     // }
 
     void readPcdCloud(){
-        for(int i = 0; i < params.size(); i++){
+        pcl::io::loadPCDFile((unit_path + map_surround_name).c_str(), *map_surround);
+        std::cout << "map surround has" << "  " << map_surround->points.size() << "  " << "points" << std::endl;
+        std::cout << "\n";
+
+        for(int i = 0; i < params.size(); i++){    
             pcl::io::loadPCDFile((unit_path + params[i].first).c_str(), *unitcloud_vec[i]);
             pcl::copyPointCloud(*unitcloud_vec[i], *unitcloud_vec_trans[i]);
-
             std::cout << "unit" << "  " << i + 1<< "  " << "has" << "  " << unitcloud_vec[i]->points.size() << "  " << "points" << std::endl;
         }
     }
@@ -159,7 +163,6 @@ public:
         T.pretranslate(Eigen::Vector3f(tmp_center.x, tmp_center.y, tmp_center.z * scale));   // modify
 
         pcl::transformPointCloud(*tmp_cloud_i, *tgt_cloud_, T.matrix());
-
     }
 
     void getMap(){
@@ -176,6 +179,34 @@ public:
         }
     }
 
+    void addTrans2MapSurround(){
+        pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
+        std::vector<int> samepoints_Idx;
+        kdtree.setInputCloud(map_surround);
+        for(int i = 0; i < unitcloud_vec.size(); i++){
+            for(int j = 0; j < unitcloud_vec[i]->points.size(); j++){
+                std::vector<int> pointSameIdx(1);
+                std::vector<float> poinSameDis(1);
+                kdtree.nearestKSearch(unitcloud_vec[i]->points[j], 1, pointSameIdx, poinSameDis);
+                samepoints_Idx.push_back(pointSameIdx[0]);
+            }    
+        }
+        pcl::PointIndices::Ptr sameIdx(new pcl::PointIndices());
+        for(int i = 0; i < samepoints_Idx.size(); i++){
+            sameIdx->indices.push_back(samepoints_Idx[i]);
+        }
+
+        pcl::ExtractIndices<pcl::PointXYZ> extract;
+          extract.setInputCloud(map_surround);
+          extract.setIndices(sameIdx);
+          extract.setNegative(true);  
+          extract.filter(*map_surround_trans);
+
+          for(int i = 0; i < unitcloud_vec_trans.size(); i++){
+            *map_surround_trans += *unitcloud_vec_trans[i];
+          }
+    }
+
     void save(){
         std::cout << "\n";
         if(pcl::io::savePCDFile(save_path + "map_init.pcd", *map_cloud) != -1)
@@ -183,6 +214,12 @@ public:
 
         if(pcl::io::savePCDFile(save_path + "map_trans.pcd", *map_cloud_trans) != -1)
             std::cout << "map trans has been saved" << std::endl;
+        
+        if(pcl::io::savePCDFile(save_path + "map_surround.pcd", *map_surround) != -1)
+            std::cout << "map surround has been saved" << std::endl;
+
+        if(pcl::io::savePCDFile(save_path + "map_surround_trans.pcd", *map_surround_trans) != -1)
+            std::cout << "map surround trans has been saved" << std::endl;
     }
 
     void allocateMemory(){
@@ -192,6 +229,9 @@ public:
         // }
         // map_cloudrgb.reset(new pcl::PointCloud<pcl::PointXYZRGB>());
         // map_cloudrgb_trans.reset(new pcl::PointCloud<pcl::PointXYZRGB>());
+
+        map_surround.reset(new pcl::PointCloud<pcl::PointXYZ>());
+        map_surround_trans.reset(new pcl::PointCloud<pcl::PointXYZ>());
 
         unitcloud_vec.resize(iterm);
         for(int i = 0; i < iterm; i++){
@@ -208,7 +248,9 @@ public:
     }
 
     // vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
-    
+    pcl::PointCloud<pcl::PointXYZ>::Ptr map_surround;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr map_surround_trans;
+
     std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> unitcloud_vec;
     pcl::PointCloud<pcl::PointXYZ>::Ptr map_cloud;
 
@@ -223,18 +265,20 @@ public:
 
 // main
 int main(int argc, char **argv){
-    if((argc - 1) % 5 != 0){
+    if((argc - 2) % 5 != 0){
         std::cerr << "param error" << std::endl;
         return -1;
     }
 
-    iterm = (argc - 1) / 5;
+    iterm = (argc - 2) / 5;
     
     std::cout << "\n";
     std::cout << "the map have" << "  " << iterm <<"  " <<  "units." << std::endl;
     std::cout << "\n";
 
-    int order = 0;
+    map_surround_name = (std::string) argv[1];  // map surround
+
+    int order = 1;
     for(int i = 0; i < iterm; i++){
         std::vector<int> tmp_vec = {std::atoi(argv[order + 2]), std::atoi(argv[order + 3]), std::atoi(argv[order + 4]), std::atoi(argv[order + 5])};
         std::pair<std::string, std::vector<int>> tmp_pair = std::make_pair((std::string)argv[order + 1], tmp_vec);
@@ -251,8 +295,8 @@ int main(int argc, char **argv){
         if(params[i].second[2] == 1) {map_generate.getDestroyCloud(map_generate.unitcloud_vec_trans[i]);}
         if(params[i].second[3] == 1) {map_generate.getScaleCloud(map_generate.unitcloud_vec_trans[i]);}
     }
-
     map_generate.getMap();
+    map_generate.addTrans2MapSurround();
     map_generate.save();
 
     return 0;
