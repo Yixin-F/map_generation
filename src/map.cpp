@@ -165,6 +165,10 @@ public:
         pcl::transformPointCloud(*tmp_cloud_i, *tgt_cloud_, T.matrix());
     }
 
+    std::pair<float, Eigen::Matrix4f> getChange(const pcl::PointCloud<pcl::PointXYZ>& src_cloud_, const pcl::PointCloud<pcl::PointXYZ>& tgt_cloud_){
+        
+    }
+
     void getMap(){
         // for(int i = 0; i < unitcloudrgb_vec.size(); i++){
         //     *map_cloudrgb += *unitcloudrgb_vec[i];
