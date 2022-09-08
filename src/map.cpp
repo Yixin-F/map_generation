@@ -458,8 +458,8 @@ public:
     // TODO: dynamic detect
     std::vector<int> getDynamicUnit(){
         std::vector<int> dynamic_vec;
+        std::vector<std::pair<int, std::pair<int, float>>> match_score_vec;
         for(int i = 0; i < unitcloud_vec_trans.size(); i++){   
-            std::vector<std::pair<int, std::pair<int, float>>> match_score_vec;
             // inside
             std::vector<int> inside_match_vec;
             std::cout << i + 1 << ".pcd" << " inside match:" << std::endl;
@@ -474,6 +474,10 @@ public:
                 std::vector<int> outside_match_vec;
                 std::cout << inside_match_vec[j] + 1 << ".pcd" << " outside match" << std::endl;
                 outside_match_vec = outsideMatch(unitcloud_vec_trans[inside_match_vec[j]]);
+
+                // if(inside_match_vec[j] == 2){
+                //     std::cout << "ok" << std::endl;
+                // }
 
                 for(int k = 0; k < outside_match_vec.size(); k++){
                     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp_cloud(new pcl::PointCloud<pcl::PointXYZ>());
@@ -498,29 +502,45 @@ public:
                     tmp_info.first(2, 3) = tmp_info.first(2, 3) + tmp_center.z - out_center.z;
 
                     std::pair<int, float> tmp_pair = std::make_pair(outside_match_vec[k], score);
+
                     std::pair<int, std::pair<int, float>> tmp_pairh = std::make_pair(inside_match_vec[j], tmp_pair);
+                    // std::cout << "j" << inside_match_vec[j] << std::endl;
 
                     match_score_vec.push_back(tmp_pairh);  
                 }
             }
+        }
 
-            std::sort(match_score_vec.begin(), match_score_vec.end(), order1);
-            if(match_score_vec.size() == 0){
-                std::cerr << "unit" << " " << i << " " <<  "match error" << std::endl;
+        // std::sort(match_score_vec.begin(), match_score_vec.end(), order1);
+        // if(match_score_vec.size() == 0){
+        //     std::cerr << "unit" << " " << i << " " <<  "match error" << std::endl;
+        // }
+        // else{
+        //     while(match_score_vec.size() != 0){
+        //         std::cout << match_score_vec.back().first << std::endl;
+        //         if(match_score_vec.back().first == i){
+        //             dynamic_vec.push_back(i);
+        //             break;
+        //         }
+        //          else{
+        //             match_score_vec.pop_back();
+        //             continue;
+        //         }
+        //     }
+        // }   
+        std::sort(match_score_vec.begin(), match_score_vec.end(), order1);
+        while(match_score_vec.size() != 0){
+            // std::cout << match_score_vec.back().first << std::endl;
+            std::vector<int>::iterator it_find = std::find(dynamic_vec.begin(), dynamic_vec.end(), match_score_vec.back().first);
+            if(it_find == dynamic_vec.end()){
+                dynamic_vec.push_back(match_score_vec.back().first);
             }
             else{
-                while(match_score_vec.size() != 0){
-                    if(match_score_vec.back().first == i){
-                        dynamic_vec.push_back(i);
-                        break;
-                    }
-                    else{
-                        match_score_vec.pop_back();
-                        continue;
-                    }
-                }
-            }   
+                match_score_vec.pop_back();
+                continue;
+            }
         }
+
         return dynamic_vec;
     }
 
