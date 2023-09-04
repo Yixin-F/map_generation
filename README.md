@@ -1,4 +1,7 @@
-# map_generation
+## map_generation
+### This repo belongs to my online internship in Grade State
+
+#### How to use
 将变化单体替换进原始地图
 
 param1: 平移
@@ -11,4 +14,9 @@ param4：缩放
 #*****************     sh run.sh    *****************
 
 unit中存放了pcd单体和pcd地图
+
+#### Basic Show
+
+
+
 
