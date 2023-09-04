@@ -1,7 +1,7 @@
 ## map_generation
 ### This repo belongs to my online internship in Grade State
 
-#### 1) How to use
+### 1) How to use
 将变化单体替换进原始地图
 
 param1: 平移
@@ -15,8 +15,10 @@ param4：缩放
 
 unit中存放了pcd单体和pcd地图
 
-#### 2) Basic Show
-
-
+### 2) Basic Show
+#### Gazebo Simulation
+<centre>
+<img src="https://github.com/Yixin-F/map_generation/img/gazebo.png" width="60%">
+</centre>
 
 
