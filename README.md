@@ -18,7 +18,21 @@ unit中存放了pcd单体和pcd地图
 ### 2) Basic Show
 #### Gazebo Simulation
 <centre>
-<img src="https://github.com/Yixin-F/map_generation/img/gazebo.png" width="60%">
+<img src="https://github.com/Yixin-F/map_generation/blob/main/img/gazebo.png" width="60%">
 </centre>
 
+#### SLAM and Object Extraction
+<centre>
+<img src="https://github.com/Yixin-F/map_generation/blob/main/img/object.png" width="60%">
+</centre>
 
+#### Map Generation in Random
+<centre>
+<img src="https://github.com/Yixin-F/map_generation/blob/main/img/mg.png" width="60%">
+</centre>
+
+#### Difference Detection and Color
+We detect the model difference between CAD provided and Point Cloud scaned, then color the different parts to benifit the company
+<centre>
+<img src="https://github.com/Yixin-F/map_generation/blob/main/img/diff.png" width="60%">
+</centre>
