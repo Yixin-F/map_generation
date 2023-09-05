@@ -32,7 +32,7 @@ unit中存放了pcd单体和pcd地图
 </centre>
 
 #### Difference Detection and Color
-We detect the model difference between CAD provided and Point Cloud scaned, then color the different parts to benifit the company.
+We detect the model difference between CAD provided and Point Cloud scaned, then color the different parts.
 
 <centre>
 <img src="https://github.com/Yixin-F/map_generation/blob/main/img/diff.png" width="60%">
