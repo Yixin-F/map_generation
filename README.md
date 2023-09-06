@@ -1,5 +1,5 @@
 ## map_generation
-### This repo belongs to my online internship in State Gride
+### This repo belongs to my online internship in State Grid
 
 ### 1) How to use
 将变化单体替换进原始地图
